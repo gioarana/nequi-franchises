@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
+import java.util.Objects;
+import java.util.function.UnaryOperator;
 
 @Repository
 public class MongoFranchiseRepositoryAdapter
@@ -40,6 +42,40 @@ public class MongoFranchiseRepositoryAdapter
         return Mono.defer(() ->
                 repository.findById(id.toString())
                         .map(this::toDomain)
+        );
+    }
+
+    @Override
+    public Mono<Franchise> update(
+            UUID id,
+            UnaryOperator<Franchise> change
+    ) {
+        return Mono.defer(() ->
+                repository.findById(id.toString())
+                        .flatMap(document -> {
+                            Franchise current = toDomain(document);
+
+                            Franchise updated = Objects.requireNonNull(
+                                    change.apply(current),
+                                    "Updated franchise must not be null"
+                            );
+
+                            if (!current.id().equals(updated.id())) {
+                                return Mono.error(
+                                        new IllegalArgumentException(
+                                                "Franchise id cannot be changed"
+                                        )
+                                );
+                            }
+
+                            document.updateContent(
+                                    updated.name(),
+                                    updated.branches()
+                            );
+
+                            return repository.save(document)
+                                    .map(this::toDomain);
+                        })
         );
     }
 

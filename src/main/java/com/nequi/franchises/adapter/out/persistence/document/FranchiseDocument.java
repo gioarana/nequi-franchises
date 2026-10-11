@@ -48,4 +48,12 @@ public class FranchiseDocument {
     public Long getVersion() {
         return version;
     }
+
+    public void updateContent(
+            String name,
+            List<Branch> branches
+    ) {
+        this.name = name;
+        this.branches = List.copyOf(branches);
+    }
 }
