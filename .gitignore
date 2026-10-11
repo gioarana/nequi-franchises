@@ -31,3 +31,22 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Directorio de trabajo de Terraform
+**/.terraform/*
+
+# Estado: puede contener credenciales
+*.tfstate
+*.tfstate.*
+
+# Valores locales y secretos
+*.tfvars
+*.tfvars.json
+.env
+.env.*
+!.env.example
+
+# Planes guardados y logs de Terraform
+*.tfplan
+crash.log
+crash.*.log
