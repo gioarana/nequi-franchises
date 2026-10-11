@@ -11,13 +11,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ApiExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ProblemDetail handleNotFound(
-            ResourceNotFoundException exception
-    ) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-                HttpStatus.NOT_FOUND,
-                exception.getMessage()
-        );
+    public ProblemDetail handleNotFound(ResourceNotFoundException exception) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage());
 
         problem.setTitle("Resource not found");
 
@@ -25,16 +20,11 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler(OptimisticLockingFailureException.class)
-    public ProblemDetail handleConcurrentModification(
-            OptimisticLockingFailureException exception
-    ) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
-                HttpStatus.CONFLICT,
-                "The franchise was modified by another request. "
-                        + "Please retry the operation."
-        );
+    public ProblemDetail handleConcurrentModification(OptimisticLockingFailureException exception) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
+                "La franquicia fue modificada por otra solicitud. Intenta nuevamente la operación.");
 
-        problem.setTitle("Concurrent modification");
+        problem.setTitle("Modificación concurrente");
 
         return problem;
     }

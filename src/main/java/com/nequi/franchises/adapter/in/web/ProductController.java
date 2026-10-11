@@ -3,6 +3,7 @@ package com.nequi.franchises.adapter.in.web;
 import com.nequi.franchises.adapter.in.web.dto.CreateProductRequest;
 import com.nequi.franchises.adapter.in.web.dto.ProductResponse;
 import com.nequi.franchises.adapter.in.web.dto.UpdateStockRequest;
+import com.nequi.franchises.application.service.DeleteProductService;
 import com.nequi.franchises.application.service.UpdateProductStockService;
 import com.nequi.franchises.application.service.AddProductService;
 import com.nequi.franchises.application.service.UpdateProductStockService;
@@ -22,10 +23,13 @@ public class ProductController {
 
     private final AddProductService addProductService;
     private final UpdateProductStockService updateProductStockService;
+    private final DeleteProductService deleteProductService;
 
-    public ProductController(AddProductService addProductService, UpdateProductStockService updateProductStockService) {
+    public ProductController(AddProductService addProductService, UpdateProductStockService updateProductStockService,
+                             DeleteProductService deleteProductService) {
         this.addProductService = addProductService;
         this.updateProductStockService = updateProductStockService;
+        this.deleteProductService = deleteProductService;
     }
 
     @PostMapping
@@ -57,5 +61,16 @@ public class ProductController {
     ) {
         return updateProductStockService.update(franchiseId, branchId, productId, request.stock())
                 .map(product -> ResponseEntity.ok(ProductResponse.from(branchId, product)));
+    }
+
+    @DeleteMapping("/{productId}")
+    public Mono<ResponseEntity<Void>> delete(
+            @PathVariable("franchiseId") UUID franchiseId,
+            @PathVariable("branchId") UUID branchId,
+            @PathVariable("productId") UUID productId
+    ) {
+        return deleteProductService.delete(franchiseId, branchId, productId).thenReturn(
+                ResponseEntity.noContent().<Void>build()
+        );
     }
 }

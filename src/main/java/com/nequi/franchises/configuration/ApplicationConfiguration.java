@@ -1,10 +1,7 @@
 package com.nequi.franchises.configuration;
 
 import com.nequi.franchises.application.port.out.FranchiseRepository;
-import com.nequi.franchises.application.service.AddBranchService;
-import com.nequi.franchises.application.service.AddProductService;
-import com.nequi.franchises.application.service.CreateFranchiseService;
-import com.nequi.franchises.application.service.UpdateProductStockService;
+import com.nequi.franchises.application.service.*;
 import org.springframework.beans.factory.BeanRegistrarDslMarker;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +27,11 @@ public class ApplicationConfiguration {
     @Bean
     public UpdateProductStockService updateProductStockService(FranchiseRepository repository){
         return new UpdateProductStockService(repository);
+    }
+
+    @Bean
+    public DeleteProductService deleteProductService(FranchiseRepository repository){
+        return new DeleteProductService(repository);
     }
 
 }
