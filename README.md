@@ -135,6 +135,23 @@ La aplicación utiliza el puerto indicado por la variable `PORT`, si existe; en 
 
 Las credenciales deben permanecer en la configuración local de ejecución y no deben guardarse en archivos compartidos del proyecto.
 
+## Contrato OpenAPI
+
+El contrato de las nueve operaciones está disponible en
+[docs/openapi.yaml](docs/openapi.yaml).
+
+Incluye servidores locales y de Render, solicitudes, respuestas,
+parámetros UUID, reglas de negocio y errores HTTP.
+
+El archivo utiliza OpenAPI 3.0.3 y puede importarse en Swagger Editor
+o Postman para consultar el diseño.
+
+Es un contrato estático mantenido en el repositorio. La aplicación
+no publica una interfaz Swagger UI ni genera el contrato automáticamente.
+
+La estructura y las referencias del archivo fueron validadas.
+Esta validación no sustituye las pruebas de comportamiento de la API.
+
 ## Endpoints
 
 Todas las rutas comienzan con `/api/v1`.

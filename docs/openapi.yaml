@@ -1,0 +1,642 @@
+openapi: 3.0.3
+
+info:
+  title: API de franquicias — Prueba técnica Nequi
+  version: 1.0.0
+  description: |
+    API para administrar franquicias, sucursales y productos con stock.
+
+    Los recursos se identifican mediante UUID. Se permiten nombres repetidos.
+    Las actualizaciones de stock reemplazan la cantidad anterior.
+
+    La API no requiere autenticación de clientes HTTP.
+
+    El servidor de demostración utiliza alojamiento gratuito y puede tardar
+    en responder después de un período de inactividad.
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Ejecución local desde IntelliJ
+
+  - url: http://localhost:8081/api/v1
+    description: Ejecución local mediante Docker
+
+  - url: https://nequi-franchises.onrender.com/api/v1
+    description: API desplegada en Render
+
+tags:
+  - name: Franchises
+    description: Creación, cambio de nombre y consulta de máximos de franquicias
+
+  - name: Branches
+    description: Creación y cambio de nombre de sucursales
+
+  - name: Products
+    description: Creación, eliminación, cambio de nombre y actualización de stock
+
+security: []
+
+paths:
+  /franchises:
+    post:
+      tags: [Franchises]
+      operationId: createFranchise
+      summary: Crear una franquicia
+      description: Crea una franquicia con UUID nuevo y sin sucursales.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NameRequest'
+      responses:
+        '201':
+          description: Franquicia creada.
+          headers:
+            Location:
+              description: |
+                Ruta relativa que identifica la franquicia creada.
+                No dispone de un endpoint GET individual.
+              schema:
+                type: string
+              example: /api/v1/franchises/00000000-0000-0000-0000-000000000001
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FranchiseResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /franchises/{franchiseId}/branches:
+    parameters:
+      - $ref: '#/components/parameters/FranchiseId'
+    post:
+      tags: [Branches]
+      operationId: addBranch
+      summary: Agregar una sucursal
+      description: |
+        Agrega una sucursal sin productos a la franquicia indicada.
+        Conserva las sucursales existentes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NameRequest'
+            example:
+              name: Chapinero
+      responses:
+        '201':
+          description: Sucursal creada.
+          headers:
+            Location:
+              description: |
+                Ruta relativa que identifica la sucursal creada.
+                No dispone de un endpoint GET individual.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /franchises/{franchiseId}/branches/{branchId}/products:
+    parameters:
+      - $ref: '#/components/parameters/FranchiseId'
+      - $ref: '#/components/parameters/BranchId'
+    post:
+      tags: [Products]
+      operationId: addProduct
+      summary: Agregar un producto
+      description: |
+        Agrega un producto con UUID nuevo a la sucursal indicada.
+        Comprueba que la sucursal pertenezca a la franquicia.
+        Conserva el inventario existente.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+      responses:
+        '201':
+          description: Producto creado.
+          headers:
+            Location:
+              description: |
+                Ruta relativa que identifica el producto creado.
+                No dispone de un endpoint GET individual.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /franchises/{franchiseId}/branches/{branchId}/products/{productId}:
+    parameters:
+      - $ref: '#/components/parameters/FranchiseId'
+      - $ref: '#/components/parameters/BranchId'
+      - $ref: '#/components/parameters/ProductId'
+    delete:
+      tags: [Products]
+      operationId: deleteProduct
+      summary: Eliminar un producto
+      description: |
+        Elimina físicamente el producto de la sucursal indicada.
+        Conserva la sucursal y los demás productos.
+        Repetir la eliminación devuelve 404.
+      responses:
+        '204':
+          description: Producto eliminado. La respuesta no contiene cuerpo.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /franchises/{franchiseId}/branches/{branchId}/products/{productId}/stock:
+    parameters:
+      - $ref: '#/components/parameters/FranchiseId'
+      - $ref: '#/components/parameters/BranchId'
+      - $ref: '#/components/parameters/ProductId'
+    patch:
+      tags: [Products]
+      operationId: updateProductStock
+      summary: Reemplazar el stock de un producto
+      description: |
+        Reemplaza la cantidad anterior; no realiza un incremento.
+        Conserva el identificador y el nombre del producto.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStockRequest'
+            example:
+              stock: 35
+      responses:
+        '200':
+          description: Stock actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /franchises/{franchiseId}/products/max-stock:
+    parameters:
+      - $ref: '#/components/parameters/FranchiseId'
+    get:
+      tags: [Franchises]
+      operationId: findMaxStockProducts
+      summary: Consultar el producto con mayor stock por sucursal
+      description: |
+        Devuelve un producto por cada sucursal con inventario.
+        Omite las sucursales sin productos y considera válido el stock cero.
+
+        En empates selecciona el producto cuyo UUID sea menor en orden
+        lexicográfico. Ordena el resultado por UUID de sucursal en orden
+        lexicográfico.
+
+        Una franquicia existente sin productos devuelve una lista vacía.
+        Una franquicia inexistente devuelve 404.
+      responses:
+        '200':
+          description: Máximos por sucursal o lista vacía.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BranchStockResponse'
+              examples:
+                withInventory:
+                  summary: Sucursal con inventario
+                  value:
+                    - branchId: 00000000-0000-0000-0000-000000000002
+                      branchName: Chapinero
+                      productId: 00000000-0000-0000-0000-000000000003
+                      productName: Café
+                      stock: 35
+                empty:
+                  summary: Franquicia sin productos
+                  value: []
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /franchises/{franchiseId}/name:
+    parameters:
+      - $ref: '#/components/parameters/FranchiseId'
+    patch:
+      tags: [Franchises]
+      operationId: renameFranchise
+      summary: Actualizar el nombre de una franquicia
+      description: Conserva su identificador, sucursales e inventario.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NameRequest'
+            example:
+              name: Café Colombiano
+      responses:
+        '200':
+          description: Nombre de franquicia actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FranchiseResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /franchises/{franchiseId}/branches/{branchId}/name:
+    parameters:
+      - $ref: '#/components/parameters/FranchiseId'
+      - $ref: '#/components/parameters/BranchId'
+    patch:
+      tags: [Branches]
+      operationId: renameBranch
+      summary: Actualizar el nombre de una sucursal
+      description: |
+        Comprueba la pertenencia a la franquicia.
+        Conserva el identificador y los productos de la sucursal.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NameRequest'
+            example:
+              name: Chapinero Central
+      responses:
+        '200':
+          description: Nombre de sucursal actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+  /franchises/{franchiseId}/branches/{branchId}/products/{productId}/name:
+    parameters:
+      - $ref: '#/components/parameters/FranchiseId'
+      - $ref: '#/components/parameters/BranchId'
+      - $ref: '#/components/parameters/ProductId'
+    patch:
+      tags: [Products]
+      operationId: renameProduct
+      summary: Actualizar el nombre de un producto
+      description: |
+        Comprueba la pertenencia a la sucursal y franquicia.
+        Conserva el identificador y el stock del producto.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NameRequest'
+            example:
+              name: Café Premium
+      responses:
+        '200':
+          description: Nombre de producto actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+components:
+  schemas:
+    NameRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: |
+            Nombre obligatorio. Se eliminan los espacios de los extremos
+            antes de validar una longitud entre 1 y 100 caracteres.
+            Se permiten nombres repetidos.
+          example: Café Andino
+
+    CreateProductRequest:
+      type: object
+      required:
+        - name
+        - stock
+      properties:
+        name:
+          type: string
+          description: |
+            Nombre obligatorio. Debe tener entre 1 y 100 caracteres
+            después de eliminar los espacios de los extremos.
+          example: Café
+        stock:
+          $ref: '#/components/schemas/Stock'
+
+    UpdateStockRequest:
+      type: object
+      required:
+        - stock
+      properties:
+        stock:
+          $ref: '#/components/schemas/Stock'
+
+    Stock:
+      type: integer
+      format: int32
+      minimum: 0
+      maximum: 2147483647
+      description: |
+        Cantidad entera de unidades. Se rechazan valores JSON decimales.
+        En una actualización reemplaza el stock anterior.
+      example: 20
+
+    FranchiseResponse:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 00000000-0000-0000-0000-000000000001
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Café Andino
+
+    BranchResponse:
+      type: object
+      required:
+        - id
+        - franchiseId
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 00000000-0000-0000-0000-000000000002
+        franchiseId:
+          type: string
+          format: uuid
+          example: 00000000-0000-0000-0000-000000000001
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Chapinero
+
+    ProductResponse:
+      type: object
+      required:
+        - id
+        - branchId
+        - name
+        - stock
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 00000000-0000-0000-0000-000000000003
+        branchId:
+          type: string
+          format: uuid
+          example: 00000000-0000-0000-0000-000000000002
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Café
+        stock:
+          $ref: '#/components/schemas/Stock'
+
+    BranchStockResponse:
+      type: object
+      required:
+        - branchId
+        - branchName
+        - productId
+        - productName
+        - stock
+      properties:
+        branchId:
+          type: string
+          format: uuid
+          example: 00000000-0000-0000-0000-000000000002
+        branchName:
+          type: string
+          example: Chapinero
+        productId:
+          type: string
+          format: uuid
+          example: 00000000-0000-0000-0000-000000000003
+        productName:
+          type: string
+          example: Café
+        stock:
+          $ref: '#/components/schemas/Stock'
+
+    FieldValidationError:
+      type: object
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+          example: stock
+        message:
+          type: string
+          example: La cantidad de stock es obligatoria
+
+    ProblemDetail:
+      type: object
+      required:
+        - title
+        - status
+        - detail
+      properties:
+        type:
+          type: string
+          format: uri-reference
+          description: Identificador del tipo de problema, si está presente.
+          example: about:blank
+        title:
+          type: string
+          example: Error de validación
+        status:
+          type: integer
+          format: int32
+          minimum: 400
+          maximum: 599
+          example: 400
+        detail:
+          type: string
+          example: La solicitud contiene campos inválidos.
+        instance:
+          type: string
+          format: uri-reference
+          description: Ruta de la solicitud que produjo el error.
+          example: /api/v1/franchises
+        errors:
+          type: array
+          description: Detalles de campos inválidos, cuando corresponda.
+          items:
+            $ref: '#/components/schemas/FieldValidationError'
+
+  parameters:
+    FranchiseId:
+      name: franchiseId
+      in: path
+      required: true
+      description: Identificador de la franquicia.
+      schema:
+        type: string
+        format: uuid
+
+    BranchId:
+      name: branchId
+      in: path
+      required: true
+      description: Identificador de una sucursal perteneciente a la franquicia.
+      schema:
+        type: string
+        format: uuid
+
+    ProductId:
+      name: productId
+      in: path
+      required: true
+      description: Identificador de un producto perteneciente a la sucursal.
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    BadRequest:
+      description: |
+        Solicitud inválida por restricciones de campos, JSON incorrecto,
+        UUID inválido o stock con formato o rango no permitido.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          examples:
+            validation:
+              summary: Stock obligatorio ausente
+              value:
+                title: Error de validación
+                status: 400
+                detail: La solicitud contiene campos inválidos.
+                errors:
+                  - field: stock
+                    message: La cantidad de stock es obligatoria
+            invalidInput:
+              summary: Formato de entrada inválido
+              value:
+                title: Solicitud inválida
+                status: 400
+                detail: >-
+                  El cuerpo de la solicitud o los parámetros no tienen
+                  el formato esperado. Los identificadores deben ser UUID
+                  válidos y el stock debe ser un entero dentro del rango permitido.
+
+    NotFound:
+      description: |
+        El recurso no existe o no pertenece a la jerarquía indicada.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          example:
+            title: Recurso no encontrado
+            status: 404
+            detail: Producto no encontrado
+
+    Conflict:
+      description: |
+        La franquicia fue modificada después de su lectura.
+        La escritura basada en la versión desactualizada fue rechazada.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          example:
+            title: Modificación concurrente
+            status: 409
+            detail: >-
+              La franquicia fue modificada por otra solicitud.
+              Intenta nuevamente la operación.
+
+    ServiceUnavailable:
+      description: |
+        Fallo de conexión o disponibilidad de persistencia contemplado
+        por el manejador de errores.
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          example:
+            title: Persistencia no disponible
+            status: 503
+            detail: >-
+              No fue posible acceder a la persistencia.
+              Intenta nuevamente más tarde.
