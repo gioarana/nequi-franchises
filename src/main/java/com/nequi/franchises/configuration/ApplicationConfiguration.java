@@ -43,4 +43,9 @@ public class ApplicationConfiguration {
     public RenameFranchiseService renameFranchiseService(FranchiseRepository repository){
         return new RenameFranchiseService(repository);
     }
+
+    @Bean
+    public RenameBranchService renameBranchService(FranchiseRepository repository){
+        return new RenameBranchService(repository);
+    }
 }
