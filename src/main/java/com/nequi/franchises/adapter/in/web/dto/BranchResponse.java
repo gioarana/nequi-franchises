@@ -16,8 +16,7 @@ public record BranchResponse(
     ) {
         return new BranchResponse(
                 branch.id(),
-                franchiseId,
-                branch.name()
+                franchiseId, branch.name()
         );
     }
 }
