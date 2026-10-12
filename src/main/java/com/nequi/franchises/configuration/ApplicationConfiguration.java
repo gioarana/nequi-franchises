@@ -34,4 +34,8 @@ public class ApplicationConfiguration {
         return new DeleteProductService(repository);
     }
 
+    @Bean
+    public FindMaxStockProductsService findMaxStockProductsService(FranchiseRepository repository){
+        return new FindMaxStockProductsService(repository);
+    }
 }
