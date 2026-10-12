@@ -560,38 +560,74 @@ Requisitos:
 Desde la raíz del proyecto:
 
 ```sh
+./mvnw clean verify
+```
+
+Este comando limpia los archivos generados, compila, ejecuta las pruebas y genera el JAR ejecutable.
+
+Para ejecutar únicamente las pruebas:
+
+```sh
 ./mvnw test
 ```
 
-En Windows:
+En Windows, utilizar `mvnw.cmd` en lugar de `./mvnw`.
 
-```powershell
-.\mvnw.cmd test
-```
+La suite contiene 83 pruebas:
 
-La suite contiene 77 pruebas:
+| Tipo | Cantidad |
+|---|---:|
+| Modelos de dominio | 23 |
+| Servicios de aplicación | 50 |
+| Arranque del contexto con componentes MongoDB simulados | 1 |
+| Integración con MongoDB mediante Testcontainers | 3 |
+| Respuestas HTTP y validación de stock | 6 |
 
-- 23 pruebas de modelos de dominio.
-- 50 pruebas de servicios de aplicación.
-- 1 prueba de arranque del contexto de Spring con componentes MongoDB simulados.
-- 3 pruebas de integración con MongoDB temporal mediante Testcontainers.
+### Persistencia
 
 Las pruebas de integración verifican:
 
-- Persistencia y recuperación de la jerarquía completa.
+- Guardado y recuperación de la jerarquía completa.
 - Actualización con conservación del inventario e incremento de versión.
 - Rechazo de una escritura con versión desactualizada, sin sobrescribir el cambio anterior.
 
 Testcontainers administra una base temporal en Docker. Estas pruebas no requieren credenciales de Atlas ni modifican sus datos.
 
-Para ejecutar únicamente las pruebas de persistencia:
+Ejecutar únicamente estas pruebas:
 
 ```sh
 ./mvnw -Dtest=MongoPersistenceTest test
 ```
 
-Las pruebas verifican el conflicto de versión en persistencia. La traducción HTTP a `409` no está cubierta por estas tres pruebas.
+### Contrato HTTP
 
-Los endpoints y la conexión a Atlas se han comprobado manualmente desde la ejecución local, Docker y Render.
+Las pruebas HTTP utilizan un servidor en un puerto aleatorio y servicios simulados.
 
-Mockito puede emitir advertencias sobre la carga dinámica de su agente en Java 21. Estas advertencias no impiden la ejecución de las pruebas.
+Verifican:
+
+- Rechazo de stock fraccionario en creación y actualización.
+- Rechazo de stock ausente con mensaje en español.
+- Respuesta 404 para recursos inexistentes.
+- Traducción de conflictos de versión a 409.
+- Traducción de un error de espera de MongoDB a 503.
+- Respuestas de error en formato `application/problem+json`.
+
+Ejecutar únicamente estas pruebas:
+
+```sh
+./mvnw -Dtest=ProductStockHttpTest test
+```
+
+### Comprobaciones manuales
+
+Los endpoints de negocio y la persistencia se comprobaron con MongoDB Atlas desde IntelliJ, Docker y Render.
+
+También se verificó en la API pública el rechazo de stock decimal y ausente, con respuestas de error en español.
+
+### Mensajes del entorno de pruebas
+
+Mockito puede emitir advertencias sobre la carga dinámica de su agente en Java 21.
+
+En macOS puede aparecer un mensaje de Netty sobre la biblioteca DNS nativa, utilizando la alternativa del sistema.
+
+En la ejecución verificada, estos mensajes no impidieron completar las 83 pruebas ni generar el ejecutable.
