@@ -38,4 +38,9 @@ public class ApplicationConfiguration {
     public FindMaxStockProductsService findMaxStockProductsService(FranchiseRepository repository){
         return new FindMaxStockProductsService(repository);
     }
+
+    @Bean
+    public RenameFranchiseService renameFranchiseService(FranchiseRepository repository){
+        return new RenameFranchiseService(repository);
+    }
 }

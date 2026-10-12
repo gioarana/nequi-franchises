@@ -3,8 +3,10 @@ package com.nequi.franchises.adapter.in.web;
 import com.nequi.franchises.adapter.in.web.dto.BranchStockResponse;
 import com.nequi.franchises.adapter.in.web.dto.CreateFranchiseRequest;
 import com.nequi.franchises.adapter.in.web.dto.FranchiseResponse;
+import com.nequi.franchises.adapter.in.web.dto.UpdateNameRequest;
 import com.nequi.franchises.application.service.CreateFranchiseService;
 import com.nequi.franchises.application.service.FindMaxStockProductsService;
+import com.nequi.franchises.application.service.RenameFranchiseService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +22,13 @@ public class FranchiseController {
 
     private final CreateFranchiseService service;
     private final FindMaxStockProductsService findMaxStockProductsService;
+    private final RenameFranchiseService renameFranchiseService;
 
-    public FranchiseController(CreateFranchiseService service, FindMaxStockProductsService findMaxStockProductsService) {
+    public FranchiseController(CreateFranchiseService service, FindMaxStockProductsService findMaxStockProductsService,
+                               RenameFranchiseService renameFranchiseService) {
         this.service = service;
         this.findMaxStockProductsService = findMaxStockProductsService;
+        this.renameFranchiseService = renameFranchiseService;
     }
 
     @PostMapping
@@ -44,5 +49,12 @@ public class FranchiseController {
                 .map(summaries -> summaries.stream()
                         .map(BranchStockResponse::from)
                         .toList());
+    }
+
+    @PatchMapping("/{franchiseId}/name")
+    public Mono<ResponseEntity<FranchiseResponse>> rename(@PathVariable("franchiseId") UUID franchiseId,
+                                                          @Valid @RequestBody UpdateNameRequest request) {
+        return renameFranchiseService.rename(franchiseId, request.name())
+                .map(franchise -> ResponseEntity.ok(FranchiseResponse.from(franchise)));
     }
 }
