@@ -295,3 +295,20 @@ La verificación completa terminó correctamente con esos mensajes presentes.
 El README incluye configuración, ejecución local, Docker, endpoints, Terraform, Render, arquitectura, limitaciones y pruebas.
 
 Este documento registra las decisiones y el alcance de la verificación.
+
+## Verificación final en la API pública
+
+El 12 de octubre de 2026 se verificaron los nueve endpoints en Render utilizando una franquicia nueva.
+
+Resultados:
+
+- Creación de franquicia, sucursal y dos productos: 201.
+- Consulta inicial: Chocolate con stock 35.
+- Actualización de Café a stock 50: 200.
+- Consulta posterior: Café con stock 50.
+- Cambio de nombre de franquicia, sucursal y producto: 200, conservando identificadores y stock.
+- Eliminación de Café: 204.
+- Consulta posterior: Chocolate con stock 35.
+- Segunda eliminación de Café: 404 con mensaje en español.
+
+El recorrido utilizó la API desplegada y persistencia real en MongoDB Atlas.
