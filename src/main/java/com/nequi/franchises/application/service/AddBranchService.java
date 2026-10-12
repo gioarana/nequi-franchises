@@ -40,7 +40,7 @@ public class AddBranchService {
                     })
                     .switchIfEmpty(Mono.error(
                             new ResourceNotFoundException(
-                                    "Franchise not found: " + franchiseId
+                                    "Franquicia no encontrada: " + franchiseId
                             )
                     ))
                     .map(updated -> branch);

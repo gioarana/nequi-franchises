@@ -7,15 +7,15 @@ import jakarta.validation.constraints.Size;
 
 public record CreateProductRequest(
 
-        @NotBlank(message = "Product name is required")
+        @NotBlank(message = "El nombre del producto es obligatorio")
         @Size(
                 max = 100,
-                message = "Product name must not exceed 100 characters"
+                message = "El nombre del producto no puede superar los 100 caracteres"
         )
         String name,
 
-        @NotNull(message = "Product stock is required")
-        @PositiveOrZero(message = "Product stock must not be negative")
+        @NotNull(message = "La cantidad de stock es obligatoria")
+        @PositiveOrZero(message = "El stock no puede ser negativo")
         Integer stock
 
 ) {

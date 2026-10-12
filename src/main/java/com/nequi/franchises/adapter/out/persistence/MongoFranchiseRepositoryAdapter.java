@@ -57,13 +57,13 @@ public class MongoFranchiseRepositoryAdapter
 
                             Franchise updated = Objects.requireNonNull(
                                     change.apply(current),
-                                    "Updated franchise must not be null"
+                                    "La franquicia actualizada no puede ser nula"
                             );
 
                             if (!current.id().equals(updated.id())) {
                                 return Mono.error(
                                         new IllegalArgumentException(
-                                                "Franchise id cannot be changed"
+                                                "El ID de la franquicia no puede cambiarse"
                                         )
                                 );
                             }

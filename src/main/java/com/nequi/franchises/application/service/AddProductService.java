@@ -40,7 +40,7 @@ public class AddProductService {
                                 .findFirst()
                                 .orElseThrow(() ->
                                         new ResourceNotFoundException(
-                                                "Branch not found: " + branchId
+                                                "Sucursal no encontrada: " + branchId
                                         )
                                 );
 
@@ -72,7 +72,7 @@ public class AddProductService {
                     })
                     .switchIfEmpty(Mono.error(
                             new ResourceNotFoundException(
-                                    "Franchise not found: " + franchiseId
+                                    "Franquicia no encontrada: " + franchiseId
                             )
                     ))
                     .map(updated -> product);

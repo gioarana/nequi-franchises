@@ -12,13 +12,13 @@ public record Branch(
     public Branch {
         if (id == null) {
             throw new IllegalArgumentException(
-                    "Branch id is required"
+                    "El identificador de la sucursal es obligatorio"
             );
         }
 
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException(
-                    "Branch name is required"
+                    "El nombre de la sucursal es obligatorio"
             );
         }
 
@@ -26,13 +26,13 @@ public record Branch(
 
         if (name.length() > 100) {
             throw new IllegalArgumentException(
-                    "Branch name must not exceed 100 characters"
+                    "El nombre de la sucursal no puede superar los 100 caracteres"
             );
         }
 
         if (products == null) {
             throw new IllegalArgumentException(
-                    "Branch products are required"
+                    "La lista de productos de la sucursal es obligatoria"
             );
         }
 

@@ -5,10 +5,10 @@ import jakarta.validation.constraints.Size;
 
 public record CreateFranchiseRequest(
 
-        @NotBlank(message = "Franchise name is required")
+        @NotBlank(message = "El nombre de la franquicia es obligatorio")
         @Size(
                 max = 100,
-                message = "Franchise name must not exceed 100 characters"
+                message = "El nombre de la franquicia no puede superar los 100 caracteres"
         )
         String name
 

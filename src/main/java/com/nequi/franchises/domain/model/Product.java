@@ -7,13 +7,13 @@ public record Product(UUID id, String name, int stock) {
     public Product {
         if (id == null) {
             throw new IllegalArgumentException(
-                    "Product id is required"
+                    "El ID del producto es obligatorio"
             );
         }
 
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException(
-                    "Product name is required"
+                    "El nombre del producto es obligatorio"
             );
         }
 
@@ -21,13 +21,13 @@ public record Product(UUID id, String name, int stock) {
 
         if (name.length() > 100) {
             throw new IllegalArgumentException(
-                    "Product name must not exceed 100 characters"
+                    "El nombre del producto no puede superar los 100 caracteres"
             );
         }
 
         if (stock < 0) {
             throw new IllegalArgumentException(
-                    "Product stock must not be negative"
+                    "El stock no puede ser negativo"
             );
         }
     }

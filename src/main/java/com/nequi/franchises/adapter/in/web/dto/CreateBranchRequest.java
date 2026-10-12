@@ -5,10 +5,10 @@ import jakarta.validation.constraints.Size;
 
 public record CreateBranchRequest(
 
-        @NotBlank(message = "Branch name is required")
+        @NotBlank(message = "El nombre de la sucursal es obligatorio")
         @Size(
                 max = 100,
-                message = "Branch name must not exceed 100 characters"
+                message = "El nombre de la sucursal no puede superar los 100 caracteres"
         )
         String name
 

@@ -1,0 +1,12 @@
+atlas_org_id = "REEMPLAZAR_CON_ORGANIZATION_ID"
+
+atlas_project_name = "nequi-franchises"
+
+database_username = "nequi-api"
+
+local_ip = "REEMPLAZAR_CON_IP_PUBLICA"
+
+# Consultar los rangos actuales en Render: Connect -> Outbound
+render_outbound_cidrs = [
+  "REEMPLAZAR_CON_CIDR_DE_RENDER"
+]

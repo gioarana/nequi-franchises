@@ -12,13 +12,13 @@ public record Franchise(
     public Franchise {
         if (id == null) {
             throw new IllegalArgumentException(
-                    "Franchise id is required"
+                    "El ID de la franquicia es obligatorio"
             );
         }
 
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException(
-                    "Franchise name is required"
+                    "El nombre de la franquicia es obligatorio"
             );
         }
 
@@ -26,13 +26,13 @@ public record Franchise(
 
         if (name.length() > 100) {
             throw new IllegalArgumentException(
-                    "Franchise name must not exceed 100 characters"
+                    "El nombre de la franquicia no puede superar los 100 caracteres"
             );
         }
 
         if (branches == null) {
             throw new IllegalArgumentException(
-                    "Franchise branches are required"
+                    "La lista de sucursales de la franquicia es obligatoria"
             );
         }
 
