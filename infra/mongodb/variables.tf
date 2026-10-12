@@ -25,3 +25,9 @@ variable "local_ip" {
   description = "IP pública autorizada para conectar la API local"
   type        = string
 }
+
+variable "render_outbound_cidrs" {
+  description = "Rangos de salida del servicio de Render"
+  type        = set(string)
+  default     = []
+}

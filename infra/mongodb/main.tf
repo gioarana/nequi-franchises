@@ -48,3 +48,11 @@ resource "mongodbatlas_project_ip_access_list" "local" {
   ip_address = var.local_ip
   comment    = "Local API development"
 }
+
+resource "mongodbatlas_project_ip_access_list" "render" {
+  for_each = var.render_outbound_cidrs
+
+  project_id = mongodbatlas_project.nequi.id
+  cidr_block = each.value
+  comment    = "Acceso de la API desplegada en Render"
+}
